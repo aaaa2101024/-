@@ -13,9 +13,7 @@ const GetAttendance = () => {
     const [error, setError] = useState<string>("");
     const { lastMessage } = useWebSocket(WEBSOCKET_URL);
 
-    // 起動した際にデータを取得
-    useEffect(() => {
-        const firstFetch = async () => {
+    const fetchAttendances = async () => {
             const response = await fetch(API_URL);
 
             if (!response) {
@@ -27,15 +25,17 @@ const GetAttendance = () => {
             setAttendances(data);
         }
 
-        firstFetch();
+    // 起動した際にデータを取得
+    useEffect(() => {
+        fetchAttendances();
     }, []);
 
     // データベースが更新される度にデータを更新
     useEffect(() => {
         if (lastMessage !== null && typeof lastMessage.data === "string") {
             try {
-                const latestData: Attendance[] = JSON.parse(lastMessage.data);
-                setAttendances(latestData);
+                console.log("データベースの更新を検知しました。データを再取得します。");
+                fetchAttendances();
             } catch (e) {
                 console.error("JSONを変換できません。: ", e);
             }
