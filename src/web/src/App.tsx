@@ -1,10 +1,10 @@
 import './App.css'
-import AttendanceGrid from './components/AttendanceGrid'
+import GetAttendance from './components/GetAttendance'
 
 function App() {
     return (
     <>
-      <AttendanceGrid />
+      <GetAttendance />
     </>
   )
 }

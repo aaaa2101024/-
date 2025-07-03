@@ -1,10 +1,34 @@
-from fastapi import APIRouter
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import sqlite3
 from typing import List
+from pathlib import Path
+from fastapi import APIRouter
 from schemas.attendance import AttendanceResponse
-from crud.attendance import get_all_attendance
+
+
+ROOT_PATH = Path(__file__).resolve().parent.parent.parent
+DB_PATH = ROOT_PATH/"data"/"testDB.db"
 
 router = APIRouter()
 
 @router.get("/attendance", response_model=List[AttendanceResponse])
-def read_attendance_endpoint():
-    return get_all_attendance()
+def get_attendance():
+    try:
+        with sqlite3.connect('../data/testDB.db') as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+        
+            cursor.execute("SELECT * FROM attendance")
+            rows_from_db = cursor.fetchall()
+        return [AttendanceResponse(id = row[0],name=row[1], status=row[2], time=row[3]) for row in rows_from_db]
+    except sqlite3.Error as e:
+        print({e})
+        rows_from_db = []
+
+# engine = create_engine("sqlite:///:attendance:")
+# Base = declarative_base()
+# Base.metadata.create_all(engine)
+# SessionClass = sessionmaker(engine)
+# session = SessionClass()
